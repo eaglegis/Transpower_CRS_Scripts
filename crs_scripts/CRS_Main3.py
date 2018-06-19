@@ -24,8 +24,8 @@ arcpy.env.overwriteOutput = True
 wkgFolder = Settings.WORKING_FOLDER
 mxdName = Settings.ANNOTATION_MXD_NAME
 labelGDBname = Settings.LABEL_GDB_NAME
-preprodSdePath = Settings.PREPROD_SDE_PATH
-preprodSdePrefix = Settings.PREPROD_SDE_PREFIX
+contextdSdePath = Settings.CONTEXT_SDE_PATH
+contextSdePrefix = Settings.CONTEXT_SDE_PREFIX
 
 assetsGDBname = Settings.ASSET_GDB_NAME
 stgSdePath = Settings.STG_SDE_PATH
@@ -47,9 +47,10 @@ emailAttachments = None
 # set workspace
 arcpy.env.workspace = wkgFolder
 
-# logfile
+# script name
 script_name = os.path.basename(__file__)
-log_name ='{0}_log'.format(script_name)
+# logfile
+log_name ='log_{0}'.format(os.path.splitext(script_name)[0])
 
 # outputs for each sub functions
 err_msg = None
@@ -100,14 +101,14 @@ def main_func():
         if err_msg != None:
             exit_sys(log, err_msg, start,sendMail)
 
-        # ## ========================================
-        # ## Process: call CRS7_removeOldDataFromPreprod
-        # ## ========================================       
-        # args = [preprodSdePath,preprodSdePrefix,log]            
-        # err_msg = crs7_remove_old_data_from_preprod(args)
+        ## ========================================
+        ## Process: call CRS7_removeOldDataFromPreprod
+        ## ========================================       
+        args = [contextdSdePath,contextSdePrefix,log]            
+        err_msg = crs7_remove_old_data_from_preprod(args)
         
-        # if err_msg != None:
-        #     exit_sys(log, err_msg, start,sendMail)            
+        if err_msg != None:
+            exit_sys(log, err_msg, start,sendMail)            
        
         ## ========================================
         ## Process: call CRS8_Extract_for_Connect

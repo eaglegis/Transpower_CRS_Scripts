@@ -63,29 +63,22 @@ def crs5_prepare_for_labels(args):
   
     try:
 
-        
-        etgLib.log_start(log)
-        etgLib.log_info(log, "script parameters:")
-        etgLib.log_info(log, "------------------------")
-        etgLib.log_info(log, "working folder: {0}".format(wkgFolder))
-        etgLib.log_info(log, "labels gdb: {0}".format(labelGDBpath))        
-        etgLib.log_info(log, "sde path: {0}".format(sdePath))
-        etgLib.log_info(log, "sde prefix: {0}".format(dataSDEprefix))
-        
-
         # log function
         etgLib.log_info(log, 'calling {}'.format(script_name), True)
 
+        # start time
+        starttime = datetime.datetime.now()
+
    
         ### Create labels GDB - check for existence first    
-        etgLib.log_info(log,'Creating working labels GDB...',True)
+        etgLib.log_info(log,'Creating working labels GDB...')
         if arcpy.Exists(labelGDBpath):
             etgLib.log_info(log,'WARNING: {} already exists!'.format(labelGDBpath))
         else:
             arcpy.CreateFileGDB_management(wkgFolder,labelGDBname)
 
         ### Copy feature classes from staging database (SDE) to local GDB
-        etgLib.log_info(log,'Copying feature classes...',True)
+        etgLib.log_info(log,'Copying feature classes from staging dabase to labels.gdb ...',True)
         for fc in fcsToCopy:
             inFCname = dataSDEprefix + fc
             inFCpath = os.path.join(sdePath,inFCname)
@@ -111,7 +104,7 @@ def crs5_prepare_for_labels(args):
 
             
         ### Copy tables from staging database (SDE) to local GDB
-        etgLib.log_info(log,'Copying tables...',True)
+        etgLib.log_info(log,'Copying tables from staging dabase to labels.gdb ...',True)
         for tbl in tblsToCopy:
             inTBLname = dataSDEprefix + tbl
             inTBLpath = os.path.join(sdePath,inTBLname)
@@ -168,8 +161,7 @@ def crs5_prepare_for_labels(args):
         parcelClause = '"PARCEL_CATEGORY" = ' + "'P'"
         arcpy.SelectLayerByAttribute_management("cadastrelyr","NEW_SELECTION",parcelClause)
         # Export selected parcels
-        arcpy.CopyFeatures_management("cadastrelyr",fcCadPPath)            
-        # print('\t{} created.').format(fcCadP)
+        arcpy.CopyFeatures_management("cadastrelyr",fcCadPPath)                   
         ### Join "P" parcel data to label table and export
         etgLib.log_info(log,'Joining "P" type parcels to label table...')
         etgLib.delete_layer("cadplyr")
@@ -177,10 +169,7 @@ def crs5_prepare_for_labels(args):
 
         arcpy.MakeTableView_management(tblPLblPath,"labelview")
         arcpy.AddJoin_management("cadplyr",joinFieldP1,tblPLblPath,joinFieldP2,"KEEP_COMMON")
-        # # print('\tJoin successfully created...')
-        # inCount = arcpy.GetCount_management("cadplyr").getOutput(0)
-        # print('\tNumber of rows = {}').format(inCount)
-        ############################################################################################
+    
         ####################### Block to set field names in parcel_label_pt correctly
         arcpy.TableToTable_conversion("cadplyr",labelGDBpath,"junktable")
         etgLib.log_info(log,'Junk table created.')
@@ -209,8 +198,6 @@ def crs5_prepare_for_labels(args):
         etgLib.log_info(log,'Made table view.')
         arcpy.TableToTable_conversion("tmptbl2",labelGDBpath,tblCdstrLabel)
 
-        ### http://gis.stackexchange.com/questions/48353/rename-feature-layer-fields
-        ####################### End of block to set field names in parcel_label_pt correctly
         ############################################################################################
         etgLib.log_info(log,'Exported table.',True)
         arcpy.RemoveJoin_management("cadplyr")
@@ -219,6 +206,9 @@ def crs5_prepare_for_labels(args):
         arcpy.MakeXYEventLayer_management(tblCLblPath,xlbl,ylbl,"XYeventlyr",spRef)
         # Output the event layer to the point feature class
         arcpy.FeatureClassToFeatureClass_conversion("XYeventlyr",labelGDBpath,pLabelPt)
+
+
+        etgLib.log_process_time(log,starttime)
        
     except Exception as e:
         print ("ERROR: {}".format(e))

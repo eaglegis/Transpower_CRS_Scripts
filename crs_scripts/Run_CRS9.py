@@ -36,9 +36,10 @@ emailSubject1 = Settings.EMAIL_SUBJECT
 emailText = Settings.EMAIL_BODYTEXT
 emailAttachments = None
 
-# logfile
+# script name
 script_name = os.path.basename(__file__)
-log_name ='{0}_log'.format(script_name)
+# logfile
+log_name ='log_{0}'.format(os.path.splitext(script_name)[0])
 
 # outputs for each sub functions
 err_msg = None

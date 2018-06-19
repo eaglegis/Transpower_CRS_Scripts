@@ -14,14 +14,14 @@ import os
 
 starttime = datetime.datetime.now()
 
-# # Assign values
-# itemsToKeep = ["NZC_STG.MapData.CRS_AuditTable","NZC_STG.MapData.CRS_SpatialTablesToUpdate",
-#                "NZC_STG.MapData.CRS_TablesToUpdate","NZC_STG.MapData.DATA_LOAD_DATE",
-#                "NZC_STG.MapData.tp_parcel_address_vw","NZC_STG.MapData.tp_parcel_title_owner_vw",
-#                "NZC_STG.MapData.tp_parcel_title_vw","NZC_STG.MapData.tp_title_address_vw",
-#                "NZC_STG.MapData.tp_title_owner_address_vw","NZC_STG.MapData.vwRecordCounts"]
-# testing on stg.gdb
-itemsToKeep = ["PARCEL_LABEL","TP_PROPERTY","TP_PROPERTY_LINK"]
+# Assign values
+itemsToKeep = ["NZC_STG.MapData.CRS_AuditTable","NZC_STG.MapData.CRS_SpatialTablesToUpdate",
+               "NZC_STG.MapData.CRS_TablesToUpdate","NZC_STG.MapData.DATA_LOAD_DATE",
+               "NZC_STG.MapData.tp_parcel_address_vw","NZC_STG.MapData.tp_parcel_title_owner_vw",
+               "NZC_STG.MapData.tp_parcel_title_vw","NZC_STG.MapData.tp_title_address_vw",
+               "NZC_STG.MapData.tp_title_owner_address_vw","NZC_STG.MapData.vwRecordCounts"]
+## testing on stg.gdb
+# itemsToKeep = ["PARCEL_LABEL","TP_PROPERTY","TP_PROPERTY_LINK"]
 args = []
 
 def crs2_empty_stage_sde(args):

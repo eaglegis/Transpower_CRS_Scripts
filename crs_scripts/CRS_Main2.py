@@ -5,6 +5,11 @@
 # 
 # Usage: > 
 # Description: 
+# 1. check working folder age
+# 2. check if create_annotation.mxd is in working folder
+# 3. call crs5
+# 4. check if PARCEL_LABEL_PT data is in NZ boundary
+# 5. update datasource of create_annotation.mxd
 # ---------------------------------------------------------------------------
 
 import sys
@@ -41,8 +46,10 @@ emailAttachments = None
 # set workspace
 arcpy.env.workspace = wkgFolder
 
+# script name
+script_name = os.path.basename(__file__)
 # logfile
-log_name = Settings.LOG_NAME + '2'
+log_name ='log_{0}'.format(os.path.splitext(script_name)[0])
 
 # outputs for each sub functions
 err_msg = None
@@ -53,7 +60,7 @@ def exit_sys(log, txt, start, sendmail = False):
     etgLib.log_error(log, txt)
     etgLib.log_close(log, start)
     if sendmail:
-        emailSubject = emailSubject1 + " - Failed"        
+        emailSubject = script_name + " - Failed"        
         etgLib.send_email(emailFrom, emailTo, emailSubject, emailText, emailAttachments, smtpServer)       
     sys.exit()
 
@@ -87,6 +94,13 @@ def main_func():
         etgLib.log_info(log, "sde path: {0}".format(stgSdePath))
 
        
+        ## ========================================
+        ## Process: check work folder age
+        ## ========================================
+        err_msg = etgLib.check_folder_age(wkgFolder, cutoffage)
+        if err_msg != None:
+            exit_sys(log, err_msg, start,sendMail)        
+
         # =============================
         # Process: check data existance 
         # assume: mxd is in \CRS\MMMYYYY folder, create_Annotations.mxd CRS.GDB is in \CRS\MMMYYY folder
@@ -97,14 +111,7 @@ def main_func():
             if not arcpy.Exists(f):
                 err = "file does not exist: {}".format(f)                
                 exit_sys(log, err, start, sendMail) 
-
-        ## ========================================
-        ## Process: check work folder age
-        ## ========================================
-        err_msg = etgLib.check_folder_age(wkgFolder, cutoffage)
-        if err_msg != None:
-            exit_sys(log, err_msg, start,sendMail)        
-
+        
         ## ========================================
         ## Process: call CRS5_prepareForCRSLables
         ## ========================================       

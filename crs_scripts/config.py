@@ -24,8 +24,8 @@ class Settings:
     EXTENT = '1080000,4730000,2100000,6230000'
     STG_SDE_PATH = r'Database Connections\pp_Dataloader@NZC_STG@NDCSTG_SPAT_AG.transpower.co.nz.sde'    
     STG_SDE_PREFIX = 'NZC_STG.MAPDATA.'   
-    PREPROD_SDE_PATH = r'Database Connections\pp_Dataloader@NZCONTEXT@NDCSTG_SPAT_AG.transpower.co.nz.sde'    
-    PREPROD_SDE_PREFIX = 'NZCONTEXT.MAPDATA.'
+    CONTEXT_SDE_PATH = r'Database Connections\pp_Dataloader@NZCONTEXT@NDCSTG_SPAT_AG.transpower.co.nz.sde'  ### context sde path  
+    CONTEXT_SDE_PREFIX = 'NZCONTEXT.MAPDATA.'
     SPREPORT_SDE_PATH = r'Database Connections/p_map_user@SPREPORT@SQLPRD-SPATIAL.transpower.co.nz.sde'       
     SPREPORT_SDE_PREFIX = "SPREPORT.MAPDATA."
     
@@ -36,6 +36,8 @@ class Settings:
     STG_SDE_PREFIX = ''
     SPREPORT_SDE_PATH = r'C:\Developments\transpower\spreportdata\spreport.gdb'
     SPREPORT_SDE_PREFIX =''
+    CONTEXT_SDE_PATH = r'C:\Developments\transpower\contextdata\context.gdb'  ### context sde path  
+    CONTEXT_SDE_PREFIX = ''
 
     #  for crs10
     PREPROD_SPREPORT_SDE_PATH = r"Database Connections\pp_Dataloader@SPREPORT@NDCSTG_SPAT_AG.transpower.co.nz.sde"  ### preprod SPREPORT SDE path

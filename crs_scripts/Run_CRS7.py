@@ -19,8 +19,8 @@ arcpy.env.overwriteOutput = True
 
 ##  ----------------- settings/parameters -----------------------
 # Script arguments
-preprodSdePath = Settings.PREPROD_SDE_PATH
-preprodSdePrefix = Settings.PREPROD_SDE_PREFIX
+preprodSdePath = Settings.CONTEXT_SDE_PATH
+preprodSdePrefix = Settings.CONTEXT_SDE_PREFIX
 
 # ---------------- email settings ---------------
 sendMail = Settings.SEND_EMAIL      # if true, the log file will be sent by email, if false, no email is sent
@@ -31,9 +31,10 @@ emailSubject1 = Settings.EMAIL_SUBJECT
 emailText = Settings.EMAIL_BODYTEXT
 emailAttachments = None
 
-# logfile
+# script name
 script_name = os.path.basename(__file__)
-log_name ='{0}_log'.format(script_name)
+# logfile
+log_name ='log_{0}'.format(os.path.splitext(script_name)[0])
 
 # outputs for each sub functions
 err_msg = None

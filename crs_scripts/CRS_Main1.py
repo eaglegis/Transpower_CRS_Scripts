@@ -5,6 +5,11 @@
 # 
 # Usage: > 
 # Description: 
+# 1. check folder age
+# 2. check mxd and crs in the working folder
+# 3. check if data is in nz boundary
+# 4. update datasource in mxd CRS_updateDataSourceMxd
+# 5. call crs1, crs2, crs3, crs4
 # ---------------------------------------------------------------------------
 
 import sys
@@ -49,8 +54,12 @@ emailAttachments = None
 # set workspace
 arcpy.env.workspace = wkgFolder
 
+# # logfile
+# log_name = Settings.LOG_NAME + '_1'
+# script name
+script_name = os.path.basename(__file__)
 # logfile
-log_name = Settings.LOG_NAME + '_1'
+log_name ='log_{0}'.format(os.path.splitext(script_name)[0])
 
 # outputs for each sub functions
 err_msg = None
@@ -61,7 +70,7 @@ def exit_sys(log, txt, start, sendmail = False):
     etgLib.log_error(log, txt)
     etgLib.log_close(log, start)
     if sendmail:
-        emailSubject = emailSubject1 + " - Failed"        
+        emailSubject = script_name + " - Failed"        
         etgLib.send_email(emailFrom, emailTo, emailSubject, emailText, emailAttachments, smtpServer)       
     sys.exit()
 
@@ -102,8 +111,7 @@ def main_func():
         err_msg = etgLib.check_folder_age(wkgFolder, cutoffage)
         if err_msg != None:
             exit_sys(log, err_msg, start,sendMail)        
-
-       
+         
         # =============================
         # Process: check data existance 
         # assume: mxd is in \CRS\MMMYYYY folder, CRS.GDB is in \CRS\MMMYYY folder

@@ -117,7 +117,8 @@ def create_log(logPath, logName):
     log = None
     ## log file
     dateStamp = datetime.datetime.now().strftime("%Y%m%d")
-    logName = logName + "_"+ dateStamp + ".log"
+    # logName = logName + "_"+ dateStamp + ".log"
+    logName = logName + "_"+ dateStamp + ".txt"
     logfile = os.path.join(logPath, logName)
  
     try:
@@ -126,11 +127,9 @@ def create_log(logPath, logName):
         log = open(logfile,'w')
     except IOError:
         print ("ERROR while opening the log file")     
-        return log
+        return log, logfile
 
     return log, logfile
-
-
 
 def log_start(log):
     if not log is None:
@@ -317,6 +316,30 @@ def check_folder_age(folder,cutoffage):
         # err = 'WARNING: working folder {} created {} HH:MM:SS.dddddd ago!!!'.format(folder,fldrTimeCheck) 
         err = 'WARNING: working folder {} created {} ago!!!'.format(folder,fldrTimeCheck)        
     return err
+
+# create field mapping
+def get_field_mapping (inFCpath, outFCpath, list_of_fields_we_will_map):
+     
+    # build the fieldmap
+    # Create FieldMappings object to manage merge output fields
+    fieldmappings = arcpy.FieldMappings()
+
+    fieldmappings.addTable(outFCpath)
+    fieldmappings.addTable(inFCpath)
+   
+    for field_map in list_of_fields_we_will_map:           
+        #Find the fields index by name. e.g 'PROPERTY_ID'
+        field_to_map_index = fieldmappings.findFieldMapIndex(field_map[0])
+    
+        #Grab "A copy" of the current field map object for this particular field
+        field_to_map = fieldmappings.getFieldMap(field_to_map_index)
+
+        field_to_map.addInputField(inFCpath, field_map[1])
+        
+        #We edited a copy, update our data grid object with it
+        fieldmappings.replaceFieldMap(field_to_map_index, field_to_map)
+
+    return fieldmappings
        
 
 
