@@ -42,7 +42,6 @@ def crs8_extract_for_connection(args):
 
     # Set locations, etc
     assetsGDBpath = os.path.join(wkgFolder,assetsGDBname)
-
     
     try:
 

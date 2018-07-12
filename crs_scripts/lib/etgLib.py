@@ -1,21 +1,22 @@
 import datetime, time
 import os
 import sys
-import urllib
-import urllib2
 import json
-import base64
-from base64 import encodestring
-
-# Import smtplib for the actual sending function
+##import base64
+##from base64 import encodestring
+##
+### Import smtplib for the actual sending function
 import smtplib
-
+##
 # Import the email modules we'll need
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.MIMEBase import MIMEBase
-from email.Utils import COMMASPACE, formatdate 
-from email import Encoders
+# python 2
+# from email.MIMEBase import MIMEBase
+# python 3
+from email.mime.base import MIMEBase
+from email.utils import COMMASPACE, formatdate
+from email import encoders
 
 import arcpy
 
@@ -230,7 +231,7 @@ def send_email(sender, to, subject, text, files=[],server="localhost"):
             if os.path.exists(f) == True:
                 part = MIMEBase('application', "octet-stream")
                 part.set_payload( open(f,'rb').read() )
-                Encoders.encode_base64(part)
+                encoders.encode_base64(part)
                 part.add_header('Content-Disposition', 'attachment; filename="%s"'
                                % os.path.basename(f))
                 msg.attach(part)

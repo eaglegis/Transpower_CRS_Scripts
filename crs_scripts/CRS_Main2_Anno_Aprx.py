@@ -18,21 +18,17 @@ import os
 import datetime, time
 from lib import etgLib
 from config import Settings
-from lib.CRS_checkDataExtent import *
-from lib.CRS5_prepareForCRSlabels import *
+from lib.CRS_updateDataSourceAprx import *
+from lib.CRS_exportLabelToAnnoAprx import *
 
 arcpy.env.overwriteOutput = True
 
 ##  ----------------- settings/parameters -----------------------
 # Script arguments
 wkgFolder = Settings.WORKING_FOLDER
-mxdName = Settings.ANNOTATION_MXD_NAME
 prjName = Settings.ANNOTATION_PROJ_NAME
 labelGDBname = Settings.LABEL_GDB_NAME
-stgSdePath = Settings.STG_SDE_PATH
-stgSdePrefix = Settings.STG_SDE_PREFIX
-cutoffage = Settings.CUTOFF_AGE
-extentString = Settings.EXTENT
+
 
 # ---------------- email settings ---------------
 sendMail = Settings.SEND_EMAIL      # if true, the log file will be sent by email, if false, no email is sent
@@ -90,51 +86,30 @@ def main_func():
         etgLib.log_info(log, "working folder: {0}".format(wkgFolder))
         etgLib.log_info(log, "arcpro project: {0}".format(prj))
         etgLib.log_info(log, "lbl gdb: {0}".format(lbl))
-        etgLib.log_info(log, "extent string: {0}".format(extentString))
-        etgLib.log_info(log, "sde path: {0}".format(stgSdePath))
-
-       
-        ## ========================================
-        ## Process: check work folder age
-        ## ========================================
-        err_msg = etgLib.check_folder_age(wkgFolder, cutoffage)
-        if err_msg != None:
-            exit_sys(log, err_msg, start,sendMail)        
-
-        # =============================
-        # Process: check data existance 
-        # assume: mxd is in \CRS\MMMYYYY folder, create_Annotations.mxd CRS.GDB is in \CRS\MMMYYY folder
-        # =============================
-        etgLib.log_info(log, "Checking data existance",True)
-        args = [prj]
-        for f in args:           
-            if not arcpy.Exists(f):
-                err = "file does not exist: {}".format(f)                
-                exit_sys(log, err, start, sendMail) 
         
-        ## ========================================
-        ## Process: call CRS5_prepareForCRSLables
-        ## ========================================       
-        args = [wkgFolder,labelGDBname,stgSdePath,stgSdePrefix,log]            
-        err_msg = crs5_prepare_for_labels(args)
+        ## =====================================
+        ## Process: call CRS_updateDataSourceAprx
+        ## =====================================
+        etgLib.log_info(log, 'calling CRS_updateDataSourceAprx', True)
+        args = [prj,lbl]        
+        err_msg = crs_update_datasource(args)
         
         if err_msg != None:
             exit_sys(log, err_msg, start,sendMail)
-       
-             
-        ## ========================================
-        ## Process: check if data is in nz boundary
-        ## ========================================
-        args = [lbl, extentString, ['PARCEL_LABEL_PT'],log]
-        err_msg = crs_check_data_extent(args)
+        
+        ## =====================================
+        ## Process: call CRS_exportLabelToAnnoAprx
+        ## =====================================
+        etgLib.log_info(log, 'calling CRS_exportLabelToAnnoAprx', True)
+        args = [prj,lbl]        
+        err_msg = crs_label_to_annotation(args)
         
         if err_msg != None:
             exit_sys(log, err_msg, start,sendMail)
-       
        
     except Exception as e:       
         err_msg = str(e)        
-        etgLib.log_error(log,"error in CRS_Main2: {0}".format(e))
+        etgLib.log_error(log,"error in {0}: {1}".format(script_name,e))
 
     etgLib.log_close(log, start)
     print ("Finished!!!  Please check the result in ArcMap or ArcCatalog")

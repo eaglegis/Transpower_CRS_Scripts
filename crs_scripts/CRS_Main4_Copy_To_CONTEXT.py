@@ -21,7 +21,7 @@ arcpy.env.overwriteOutput = True
 wkgFolder = Settings.WORKING_FOLDER
 labelGDBname = Settings.LABEL_GDB_NAME
 
-contextdSdePath = Settings.CONTEXT_SDE_PATH
+contextSdePath = Settings.CONTEXT_SDE_PATH
 contextSdePrefix = Settings.CONTEXT_SDE_PREFIX
 
 stgSdePath = Settings.STG_SDE_PATH
@@ -79,7 +79,7 @@ def main_func():
         etgLib.log_info(log, "script parameters:")
         etgLib.log_info(log, "------------------------")
         etgLib.log_info(log, "Staging sde path: {0}".format(stgSdePath))
-        etgLib.log_info(log, "Context sde path: {0}".format(contextdSdePath))
+        etgLib.log_info(log, "Context sde path: {0}".format(contextSdePath))
         
         ## ========================================
         ## Process: copy data from NZC_STG to NZCONTEXT
@@ -95,31 +95,49 @@ def main_func():
         # Process: Copy Feature classes
         etgLib.log_info(log,'Copy Features from NZC_STG database to NZCONTEXT pre-prod SDE ...',True)
         for fc in fcl:
-            inFCname = stgSdePrefix + fc            
-            inFCpath = os.path.join(stgSdePath,inFCname)
-            out_fc_name = contextSdePrefix + fc + "_1"
-            outFCpath = os.path.join(contextdSdePath,out_fc_name)
-            etgLib.log_info(log,'Copying ...: {}'.format(inFCname))
-            arcpy.Copy_management(inFCpath,outFCpath, "FeatureClass")
+            # the feature class name already include the psde prefix name
+            fcName =  fc.split(".")[2]
+            if fcName not in excludedTables:
+                inFCname = stgSdePrefix + fcName            
+                inFCpath = os.path.join(stgSdePath,inFCname)           
+                out_fc_name = contextSdePrefix + fcName + "_1"
+                outFCpath = os.path.join(contextSdePath,out_fc_name)
+                etgLib.log_info(log,'in feature class ...: {}'.format(inFCpath))            
+                etgLib.log_info(log,'out feature class ...: {}'.format(outFCpath))
+                if arcpy.Exists(inFCpath):                          
+                    etgLib.log_info(log,'Copying ...: {}'.format(inFCname))
+                    arcpy.Copy_management(inFCpath,outFCpath, "FeatureClass")
+                else:
+                    etgLib.log_info(log,'feature class does not exist ...: {}'.format(inFCname))
 
-        # Process: Copy Feature classes
+        
+
+        # Process: Copy tables
         etgLib.log_info(log,'Copy Tables from NZC_STG database to NZCONTEXT pre-prod SDE ...',True)
         for tbl in tbll:
-            if tbl not in excludedTables:
-                inTBLname = stgSdePrefix + tbl
+            tblName =  tbl.split(".")[2]
+            if tblName not in excludedTables:                
+                inTBLname = stgSdePrefix + tblName
                 inTBLpath = os.path.join(stgSdePrefix,inTBLname)               
-                out_tbl_name = contextSdePrefix + tbl + "_1"
-                outTBLpath = os.path.join(contextdSdePath,out_tbl_name)
-                etgLib.log_info(log,'Copying ...: {}'.format(inTBLname))
-                arcpy.Copy_management(inTBLpath,outTBLpath)
+                out_tbl_name = contextSdePrefix + tblName + "_1"
+                outTBLpath = os.path.join(contextSdePath,out_tbl_name)
+                etgLib.log_info(log,'in table ...: {}'.format(inFCpath))            
+                etgLib.log_info(log,'out table ...: {}'.format(outFCpath))
+                if arcpy.Exists(inTBLpath):
+                    etgLib.log_info(log,'Copying ...: {}'.format(inTBLname))
+                    arcpy.Copy_management(inTBLpath,outTBLpath)
+                else:
+                    etgLib.log_info(log,'table does not exist ...: {}'.format(inTBLname))
         
         # Copy TITLE in CONTEXT to TITLE_o
         etgLib.log_info(log,'Copy TITLE table to TITLE_o in NZCONTEXT pre-prod SDE ...',True)
         inTBLname = contextSdePrefix + "TITLE"
-        inTBLpath = os.path.join(contextdSdePath,inTBLname)               
+        inTBLpath = os.path.join(contextSdePath,inTBLname)               
         out_tbl_name = contextSdePrefix + "TITLE_o"
-        outTBLpath = os.path.join(contextdSdePath,out_tbl_name)
-        arcpy.Copy_management(inTBLpath,outTBLpath)
+        outTBLpath = os.path.join(contextSdePath,out_tbl_name)
+        if arcpy.Exists(inTBLpath):
+            etgLib.log_info(log,'Copying ...: {}'.format(inTBLname))
+            arcpy.Copy_management(inTBLpath,outTBLpath)
 
         # truncate and append Title in CONTEXT
         etgLib.log_info(log,'truncate and append TITLE in CONTEXT ...')
@@ -139,7 +157,7 @@ def main_func():
         for fc in annoLayers:                      
             inFCpath = os.path.join(lbl_gdb,fc)
             out_fc_name = contextSdePrefix + fc
-            outFCpath = os.path.join(contextdSdePath,out_fc_name)
+            outFCpath = os.path.join(contextSdePath,out_fc_name)
             if arcpy.Exists(inFCpath):
                 etgLib.log_info(log,'Copying ...: {}'.format(fc))            
                 arcpy.Copy_management(inFCpath,outFCpath, "FeatureClass")

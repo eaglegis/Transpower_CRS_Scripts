@@ -86,7 +86,7 @@ def main_func():
         etgLib.log_info(log,'copy Connect_Property to *_o in SPOWN sde ...')
         
         inFCpath = os.path.join(prepSPOWNpath,spown_property_connect)
-        if arcpy.arcpy.Exists(inFCpath):
+        if arcpy.Exists(inFCpath):
             out_fc_name = spown_property_connect + "_o"
             outFCpath = os.path.join(prepSPOWNpath,out_fc_name)
             etgLib.log_info(log,'Copying: {0} to {1}'.format(spown_property_connect,out_fc_name ))
