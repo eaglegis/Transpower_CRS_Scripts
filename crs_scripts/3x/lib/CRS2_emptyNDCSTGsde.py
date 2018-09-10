@@ -8,7 +8,6 @@
 
 ### Import modules
 import arcpy
-import etgLib
 import datetime, time
 import os   
 
@@ -20,9 +19,17 @@ itemsToKeep = ["NZC_STG.MapData.CRS_AuditTable","NZC_STG.MapData.CRS_SpatialTabl
                "NZC_STG.MapData.tp_parcel_address_vw","NZC_STG.MapData.tp_parcel_title_owner_vw",
                "NZC_STG.MapData.tp_parcel_title_vw","NZC_STG.MapData.tp_title_address_vw",
                "NZC_STG.MapData.tp_title_owner_address_vw","NZC_STG.MapData.vwRecordCounts"]
-## testing on stg.gdb
-# itemsToKeep = ["PARCEL_LABEL","TP_PROPERTY","TP_PROPERTY_LINK"]
+# # testing on stg.gdb
+# itemsToKeep = ["PARCEL_LABEL","TP_PROPERTY","TP_PROPERTY_LINK"]               
+# variables
 args = []
+err_message = None
+log_messages = []
+
+
+def log_msg(msg):
+    print (msg)
+    log_messages.append(msg)
 
 def crs2_empty_stage_sde(args):
     # script name
@@ -30,14 +37,13 @@ def crs2_empty_stage_sde(args):
 
     # script parameters
     sde = args[0]  
-    log = args[1]
+    # log = args[1]
 
     # Set environment
     arcpy.env.workspace = sde
-    print (sde)
-    
+      
     # log function
-    etgLib.log_info(log, 'calling {}'.format(script_name), True)
+    log_msg ('calling {}'.format(script_name))
 
     # variables
     err_message = None
@@ -48,16 +54,16 @@ def crs2_empty_stage_sde(args):
        
         # Find all feature classes and delete a subset
         fcl = arcpy.ListFeatureClasses()
-        etgLib.log_info(log, 'Deleting subset of feature classes:')
+        log_msg('Deleting subset of feature classes:')
         
         for fc in fcl:
-            print (fc)
+            log_msg(fc)
             if fc in itemsToKeep:
-                etgLib.log_info(log, 'Kept:{}'.format(fc))
+                log_msg('Kept:{}'.format(fc))
             else:
                 try:
                     arcpy.Delete_management(fc)
-                    etgLib.log_info(log, 'Deleted: {}'.format(fc))
+                    log_msg('Deleted: {}'.format(fc))
                 except:
                     # print('***ERROR*** while deleting {} - delete manually!!!').format(fc)
                     err_message = 'ERROR: deleting {}\n'.format(fc)
@@ -65,24 +71,23 @@ def crs2_empty_stage_sde(args):
         
         # Find all tables and delete a subset
         tbll = arcpy.ListTables()
-        etgLib.log_info(log, 'Deleting subset of feature tables:')
+        log_msg('Deleting subset of feature tables:')
         for tbl in tbll:
             if tbl in itemsToKeep:
-                etgLib.log_info(log, 'Kept:{}'.format(tbl))
+                log_msg('Kept:{}'.format(tbl))
             else:
                 try:
                     arcpy.Delete_management(tbl)
-                    etgLib.log_info(log, 'Deleted: {}'.format(tbl))
+                    log_msg('Deleted: {}'.format(tbl))
                 except:                    
                     if err_message != None:
                         err_message = err_message + 'ERROR: deleting {}\n'.format(tbl)
                     else:
                         err_message = 'ERROR: deleting {}\n'.format(tbl)
 
-
-        etgLib.log_process_time(log,starttime) 
+        log_msg( "Process time: %s \n" % str(datetime.datetime.now()-starttime))
 
     except Exception as e: 
         err_message =  "ERROR while running {0}: {1}" .format(script_name,e)
-    return err_message
+    return err_message, log_messages
     

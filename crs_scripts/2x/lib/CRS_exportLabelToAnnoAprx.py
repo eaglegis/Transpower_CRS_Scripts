@@ -29,8 +29,8 @@ def crs_label_to_annotation(args):
             scale = dictScale[m.name]
             print("Converting scale: {}".format(scale))
             arcpy.cartography.ConvertLabelsToAnnotation(m, scale, gdb, 
-                                                 m.name, 'MAXOF', 'GENERATE_UNPLACED', 'REQUIRE_ID', 
-                                                'FEATURE_LINKED', '', '', 'AnnoLayers_' + m.name)
+                                                 m.name, 'MAXOF', 'GENERATE_UNPLACED', 'NO_REQUIRE_ID', 
+                                                'STANDARD', '', '', 'AnnoLayers_' + m.name)
             
         del aprx             
        

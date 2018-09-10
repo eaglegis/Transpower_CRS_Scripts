@@ -9,17 +9,29 @@
 # 2. create a rectangle geometry and then use it as the select_features in Select Layer By Location, followed by Get Count
 
 import arcpy, os
-import etgLib
 
 sr = arcpy.SpatialReference(2193)
 
+# variables
 args = []
+err_message = None
+log_messages = []
+
+
+def log_msg(msg):
+    print (msg)
+    log_messages.append(msg)
+
+def delete_layer(lyr):
+    if arcpy.Exists(lyr):
+        print ("{} exists - deleted".format(lyr))
+        arcpy.Delete_management(lyr)  
+
 def crs_check_data_extent(args):
     # script parameters
     gdb = args[0]
     extentString = args[1]
     itemsToCheck = args[2]
-    log = args[3]
 
     # workspace
     arcpy.env.workspace = gdb
@@ -30,7 +42,7 @@ def crs_check_data_extent(args):
     # variables
     err_message = None
 
-    etgLib.log_info(log, 'calling {}'.format(script_name), True)
+    log_msg('calling {}'.format(script_name))
     try:
         
         extentValues = extentString.split(',')
@@ -43,8 +55,7 @@ def crs_check_data_extent(args):
         yMin = int(extentValues[1])
         xMax = int(extentValues[2])
         yMax = int(extentValues[3])
-
-        
+       
         extent = arcpy.Extent(xMin,yMin,xMax,yMax)
         extentArray = arcpy.Array(i for i in (extent.lowerLeft,  
                                             extent.lowerRight,  
@@ -62,11 +73,11 @@ def crs_check_data_extent(args):
 
         for fc in fcs:
             name = arcpy.Describe(fc).name
-            etgLib.log_info(log, 'checking {0}...'.format(name))
+            log_msg ('checking {0}...'.format(name))
 
             # Make a layer and select features which within the extent polygon
             lyr = 'lyr_{}'.format(name)
-            etgLib.delete_layer(lyr)
+            delete_layer(lyr)
             
             arcpy.MakeFeatureLayer_management(fc, lyr)
             count = int(arcpy.GetCount_management(lyr)[0])            
@@ -77,13 +88,13 @@ def crs_check_data_extent(args):
             count = int(arcpy.GetCount_management(lyr)[0]) 
             # delete features outside nz bound
             if count > 0:
-                etgLib.log_info(log, 'deleting features in {0}: {1}'.format(name,count))                
+                log_msg ('deleting features in {0}: {1}'.format(name,count))
                 arcpy.DeleteFeatures_management(lyr)
         
     except Exception as e:        
         err_message =  "ERROR while running {0}: {1}" .format(script_name,e)
 
-    return err_message      
+    return err_message, log_messages     
 
 # if __name__ == '__main__':
 #     main(args)
